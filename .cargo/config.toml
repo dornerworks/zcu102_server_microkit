@@ -1,0 +1,16 @@
+#
+# Copyright 2023, Colias Group, LLC
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+[build]
+target-dir = "build/target"
+artifact-dir = "build"
+target = "aarch64-sel4-microkit-minimal"
+
+[unstable]
+unstable-options = true
+
+[env]
+RUST_TARGET_PATH = { value = "support/targets", relative = true }

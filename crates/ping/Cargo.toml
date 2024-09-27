@@ -1,0 +1,30 @@
+#
+# Copyright 2024, DornerWorks
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+[package]
+name = "ping"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = "0.4.17"
+sel4-bounce-buffer-allocator = { git = "https://github.com/seL4/rust-sel4" }
+sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
+sel4-externally-shared = { git = "https://github.com/seL4/rust-sel4" }
+sel4-logging = { git = "https://github.com/seL4/rust-sel4" }
+sel4-microkit-driver-adapters = { git = "https://github.com/seL4/rust-sel4" }
+sel4-shared-ring-buffer = { git = "https://github.com/seL4/rust-sel4" }
+sel4-shared-ring-buffer-smoltcp = { git = "https://github.com/seL4/rust-sel4" }
+
+[dependencies.sel4-microkit]
+git = "https://github.com/seL4/rust-sel4"
+default-features = false
+features = ["alloc"]
+
+[dependencies.smoltcp]
+version = "0.10.0"
+default-features = false
+features = ["alloc", "proto-ipv4", "socket-icmp", "socket-tcp"]

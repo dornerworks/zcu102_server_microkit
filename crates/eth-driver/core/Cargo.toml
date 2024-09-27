@@ -1,0 +1,24 @@
+#
+# Copyright 2024, DornerWorks
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+[package]
+name = "eth-driver-core"
+version = "0.1.0"
+authors = ["Robbie VanVossen <robert.vanvossen@dornerworks.com>"]
+edition = "2021"
+license = "BSD-2-Clause"
+
+[dependencies]
+log = "0.4.17"
+tock-registers = "0.9.0"
+eth_phy = { git = "https://github.com/dornerworks/zynqmp_hal.git" }
+zynqmp_hal = { git = "https://github.com/dornerworks/zynqmp_hal.git" }
+sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
+
+[dependencies.smoltcp]
+version = "0.10.0"
+default-features = false
+features = ["proto-ipv4"]

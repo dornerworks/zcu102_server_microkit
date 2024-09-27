@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     Copyright 2024, DornerWorks
+
+     SPDX-License-Identifier: BSD-2-Clause
+-->
+<system>
+
+    <memory_region name="gem_mmio"  size="0x1000" phys_addr="0xFF0E_0000" />
+
+    <memory_region name="net_driver_dma" size="0x20_0000" page_size="0x20_0000" />
+    <memory_region name="net_client_dma" size="0x20_0000" page_size="0x20_0000" />
+
+    <memory_region name="net_rx_free" size="0x4000" page_size="0x1000"/>
+    <memory_region name="net_rx_used" size="0x4000" page_size="0x1000"/>
+    <memory_region name="net_tx_free" size="0x4000" page_size="0x1000"/>
+    <memory_region name="net_tx_used" size="0x4000" page_size="0x1000"/>
+
+    <protection_domain name="eth_driver" priority="254" pp="true">
+        <program_image path="eth-driver.elf" />
+        <map mr="gem_mmio" vaddr="0xFF0E_0000" perms="rw" cached="false" setvar_vaddr="gem_register_block" />
+
+        <map mr="net_driver_dma" vaddr="0x8000_0000" perms="rw" cached="false" setvar_vaddr="net_driver_dma_vaddr" />
+        <setvar symbol="net_driver_dma_paddr" region_paddr="net_driver_dma" />
+
+        <map mr="net_client_dma" vaddr="0x1_000_000_000" perms="rw" cached="true" setvar_vaddr="net_client_dma_vaddr" />
+
+        <map mr="net_rx_free" vaddr="0x20_0000_0000" perms="rw" cached="true" setvar_vaddr="net_rx_free" />
+        <map mr="net_rx_used" vaddr="0x20_0100_0000" perms="rw" cached="true" setvar_vaddr="net_rx_used" />
+        <map mr="net_tx_free" vaddr="0x20_0200_0000" perms="rw" cached="true" setvar_vaddr="net_tx_free" />
+        <map mr="net_tx_used" vaddr="0x20_0300_0000" perms="rw" cached="true" setvar_vaddr="net_tx_used" />
+
+        <irq irq="95" id="0" />
+    </protection_domain>
+
+    <protection_domain name="ping" priority="254" pp="true">
+        <program_image path="ping.elf" />
+        <map mr="net_client_dma" vaddr="0x1_000_000_000" perms="rw" cached="true" setvar_vaddr="net_client_dma_vaddr" />
+
+        <map mr="net_rx_free" vaddr="0x2_000_000_000" perms="rw" cached="true" setvar_vaddr="net_rx_free" />
+        <map mr="net_rx_used" vaddr="0x2_001_000_000" perms="rw" cached="true" setvar_vaddr="net_rx_used" />
+        <map mr="net_tx_free" vaddr="0x2_002_000_000" perms="rw" cached="true" setvar_vaddr="net_tx_free" />
+        <map mr="net_tx_used" vaddr="0x2_003_000_000" perms="rw" cached="true" setvar_vaddr="net_tx_used" />
+    </protection_domain>
+
+    <channel>
+        <end pd="ping" id="0" />
+        <end pd="eth_driver" id="1" />
+    </channel>
+
+</system>

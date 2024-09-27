@@ -1,0 +1,22 @@
+#
+# Copyright 2024, DornerWorks
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+[package]
+name = "eth-driver"
+version = "0.1.0"
+authors = ["Robbie VanVossen <robert.vanvossen@dornerworks.com>"]
+edition = "2021"
+license = "BSD-2-Clause"
+
+[dependencies]
+log = "0.4.17"
+eth-driver-core = { path = "core" }
+sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
+sel4-externally-shared = { git = "https://github.com/seL4/rust-sel4" }
+sel4-logging = { git = "https://github.com/seL4/rust-sel4" }
+sel4-microkit = { git = "https://github.com/seL4/rust-sel4", default-features = false }
+sel4-microkit-driver-adapters = { git = "https://github.com/seL4/rust-sel4" }
+sel4-shared-ring-buffer = { git = "https://github.com/seL4/rust-sel4" }
