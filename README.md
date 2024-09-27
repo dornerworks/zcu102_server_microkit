@@ -14,17 +14,21 @@ The server system consists of two components:
 
 https://sel4.github.io/rust-sel4/views/aarch64-microkit/aarch64-sel4-microkit/doc/sel4_microkit/index.html
 
+### Configuration
+
+This project uses a static IP configuration. Edit `IP` and `GATEWAY` in `crates/ping/src/config.rs` according to your network.
+
 ### Quick start
 
 The only requirements for getting started are Git, Make, and Docker.
 
-First, clone this repository. Then build, run, and enter a Docker container for development:
+First, clone this repository. Then enter a Docker container for development:
 
 ```
 make -C docker/ run && make -C docker/ exec
 ```
 
-Inside the container, build and emulate the demo:
+Inside the container, build the application:
 
 ```
 make
@@ -37,3 +41,5 @@ Assuming using U-Boot with TFTP, the following command can be run:
 ```
 dhcp; tftpboot 0x40000000 loader.img; go 0x40000000
 ```
+
+Once the `eth-driver` and `ping` components have finished initialization, another machine on the network can ping the configured IP address.
