@@ -12,7 +12,7 @@ pub mod channels {
 }
 
 pub mod sizes {
-    pub const DRIVER_DMA: usize = 0x20_0000;
+    pub const DRIVER_DMA: usize = 0x1000;
     // pub const NET_CLIENT_DMA: usize = 0x20_0000;
 }
 
