@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 
 mod queues;
-use queues::{BufferDesc, BufferQueue, BUFFER_DESC_ARRAY_LEN};
+pub use queues::{BufferDesc, BufferQueue, BUFFER_DESC_ARRAY_LEN};
 
 pub const QUEUE_SIZE: usize = 8;
 

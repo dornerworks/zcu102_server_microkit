@@ -16,8 +16,7 @@ log = "0.4.17"
 eth-driver-core = { path = "core" }
 sddf-utils = { path = "../sddf_utils" }
 sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
-sel4-externally-shared = { git = "https://github.com/seL4/rust-sel4" }
 sel4-logging = { git = "https://github.com/seL4/rust-sel4" }
 sel4-microkit = { git = "https://github.com/seL4/rust-sel4", default-features = false }
 sel4-microkit-driver-adapters = { git = "https://github.com/seL4/rust-sel4" }
-sel4-shared-ring-buffer = { git = "https://github.com/seL4/rust-sel4" }
+# serde = { version = "1.0.147", default-features = false }

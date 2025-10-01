@@ -21,4 +21,4 @@ sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
 [dependencies.smoltcp]
 version = "0.10.0"
 default-features = false
-features = ["proto-ipv4", "medium-ethernet", "socket-raw"]
+features = ["proto-ipv4", "medium-ethernet", "socket-icmp", "socket-tcp"]
