@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 //
 
-use super::{DataBuf, DmaPtr, DmaPtrs, MTU, NUM_BUFS};
+use super::{DmaPtr, DmaPtrs, MTU, NUM_BUFS};
 use core::ops::{Deref, DerefMut};
 
 mod descriptor;
@@ -47,8 +47,6 @@ impl DerefMut for TxDummy {
 }
 
 pub struct TxRing {
-    curr_entry: usize,
-    buffer: DataBuf,
     base_paddr: usize,
     entries: *mut [Descriptor; NUM_BUFS],
 }
@@ -56,14 +54,11 @@ pub struct TxRing {
 impl TxRing {
     pub fn new(dma_ptrs: &DmaPtrs) -> Self {
         let entries = dma_ptrs.desc.vaddr.cast();
-        let buf_ptr = dma_ptrs.buf.vaddr.cast();
         let mut ring = Self {
-            curr_entry: 0,
-            buffer: DataBuf::new(buf_ptr),
             base_paddr: dma_ptrs.desc.paddr as usize,
             entries,
         };
-        ring.setup(dma_ptrs.buf.paddr as usize);
+        ring.setup(dma_ptrs.buf as usize);
         ring
     }
 
@@ -79,35 +74,24 @@ impl TxRing {
         self.last_mut().unwrap().mark_last();
     }
 
-    pub fn next_entry_available(&self) -> bool {
-        self.get(self.curr_entry).unwrap().is_available()
+    pub fn entry_available(&self, offset: usize) -> bool {
+        self.get(offset / MTU).unwrap().is_available()
     }
 
-    pub fn get_next_buffer(&mut self, len: usize) -> &mut [u8] {
-        let curr_entry = self.curr_entry;
-        let desc = self.get_mut(curr_entry).unwrap();
+    pub fn get_buffer(&mut self, offset: usize, len: usize) -> u32 {
+        let idx = offset / MTU;
+        let desc = self.get_mut(idx).unwrap();
         desc.clear_status();
         desc.set_len(len);
         // Assume only single buffer sized frames
         desc.mark_frame_end();
         desc.mark_gem_owned();
 
-        self.buffer.get(self.curr_entry)
+        self.desc_paddr(idx)
     }
 
     fn desc_paddr(&self, idx: usize) -> u32 {
         (self.base_paddr + idx * 8).try_into().unwrap()
-    }
-
-    fn increment_idx(&mut self) {
-        let entries_len = self.len();
-        self.curr_entry = (self.curr_entry + 1) % entries_len;
-    }
-
-    pub fn send_complete(&mut self) -> u32 {
-        let curr_entry = self.curr_entry;
-        self.increment_idx();
-        self.desc_paddr(curr_entry)
     }
 }
 

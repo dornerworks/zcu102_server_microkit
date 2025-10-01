@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 //
 
-use super::{DataBuf, MTU, NUM_BUFS};
+use super::{MTU, NUM_BUFS};
 use core::ops::{Deref, DerefMut};
 
 mod descriptor;
@@ -16,20 +16,17 @@ pub const DESC_SIZE: usize = core::mem::size_of::<Descriptor>();
 
 pub struct RxRing {
     curr_entry: usize,
-    buffer: DataBuf,
     entries: *mut [Descriptor; NUM_BUFS],
 }
 
 impl RxRing {
     pub fn new(dma_ptrs: &DmaPtrs) -> Self {
         let entries = dma_ptrs.desc.vaddr.cast();
-        let buf_ptr = dma_ptrs.buf.vaddr.cast();
         let mut ring = Self {
             curr_entry: 0,
-            buffer: DataBuf::new(buf_ptr),
             entries,
         };
-        ring.setup(dma_ptrs.buf.paddr as usize);
+        ring.setup(dma_ptrs.buf as usize);
         ring
     }
 
@@ -49,15 +46,15 @@ impl RxRing {
         self.get(self.curr_entry).unwrap().is_available()
     }
 
-    pub fn recv_next(&mut self) -> &mut [u8] {
-        self.buffer.get(self.curr_entry)
+    pub fn recv_next(&mut self) -> usize {
+        let entries_len = self.len();
+        let entry = self.curr_entry;
+        self.curr_entry = (self.curr_entry + 1) % entries_len;
+        entry * MTU
     }
 
-    pub fn mark_done(&mut self) {
-        let curr_entry = self.curr_entry;
-        self.get_mut(curr_entry).unwrap().mark_done();
-        let entries_len = self.len();
-        self.curr_entry = (self.curr_entry + 1) % entries_len;
+    pub fn mark_done(&mut self, offset: usize) {
+        self.get_mut(offset / MTU).unwrap().mark_done();
     }
 }
 

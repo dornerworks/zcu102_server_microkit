@@ -8,17 +8,17 @@
 
 use eth_phy::dp83867::{DP83867Conf, Phy, PortMirroring};
 use eth_phy::{configure_phy, GenPhy, PhyInterface, Supported};
-use log::info;
+use log::{error, info};
 use zynqmp_hal::gem::{Device, MacAddress, Running};
 
 mod dma;
 mod sel4_interfaces;
 
-pub use dma::DmaDef;
 use dma::{alloc_dma, GemDmaPtrs, RxRing, TxDummy, TxRing};
+pub use dma::{DmaDef, MTU};
 
 pub struct Driver {
-    dev: Device<Running>,
+    pub dev: Device<Running>,
     rx_ring: RxRing,
     tx_ring: TxRing,
 }
@@ -33,8 +33,8 @@ pub enum IrqType {
 const MAC: [u8; 6] = [0x00, 0x0A, 0x35, 0x03, 0x78, 0xA1];
 
 impl Driver {
-    pub fn new(ptr: *mut (), dma: DmaDef) -> Self {
-        let dma_ptrs = alloc_dma(dma);
+    pub fn new(ptr: *mut (), dma: DmaDef, rx_buf_paddr: *mut (), tx_buf_paddr: *mut ()) -> Self {
+        let dma_ptrs = alloc_dma(dma, rx_buf_paddr, tx_buf_paddr);
         let rx_ring = RxRing::new(&dma_ptrs.rx);
         let tx_ring = TxRing::new(&dma_ptrs.tx);
         let _tx_dummy = TxDummy::new(&dma_ptrs.tx_dummy);
@@ -108,11 +108,27 @@ impl Driver {
         }
     }
 
-    pub fn rx_available(&self) -> bool {
-        self.rx_ring.next_entry_available()
+    pub fn rx_mark_done(&mut self, offset: usize) {
+        self.rx_ring.mark_done(offset);
     }
 
-    pub fn tx_available(&self) -> bool {
-        self.tx_ring.next_entry_available()
+    pub fn receive(&mut self) -> Option<usize> {
+        if self.rx_ring.next_entry_available() {
+            Some(self.rx_ring.recv_next())
+        } else {
+            None
+        }
+    }
+
+    pub fn transmit(&mut self, offset: usize, len: usize) {
+        if self.tx_ring.entry_available(offset) {
+            let paddr = self.tx_ring.get_buffer(offset, len);
+            self.dev.wait_for_transmit_finish();
+            self.dev.set_tx_desc(paddr);
+            self.dev.transmit();
+            self.dev.wait_for_transmit_finish();
+        } else {
+            error!("Tried to transmit with a descriptor that SW doesn't own: {offset}. Should not happen");
+        }
     }
 }

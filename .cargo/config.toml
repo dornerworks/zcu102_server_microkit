@@ -7,7 +7,7 @@
 [build]
 target-dir = "build/target"
 artifact-dir = "build"
-target = "aarch64-sel4-microkit-minimal"
+target = "aarch64-sel4-microkit"
 
 [unstable]
 unstable-options = true
