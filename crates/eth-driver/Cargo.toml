@@ -14,6 +14,7 @@ license = "BSD-2-Clause"
 [dependencies]
 log = "0.4.17"
 eth-driver-core = { path = "core" }
+sddf-utils = { path = "../sddf_utils" }
 sel4-driver-interfaces = { git = "https://github.com/seL4/rust-sel4" }
 sel4-externally-shared = { git = "https://github.com/seL4/rust-sel4" }
 sel4-logging = { git = "https://github.com/seL4/rust-sel4" }
